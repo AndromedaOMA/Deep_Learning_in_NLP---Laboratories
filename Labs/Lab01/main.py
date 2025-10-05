@@ -20,5 +20,8 @@ def syn_and_ant(word: str):
 
 
 if __name__ == '__main__':
-    word = input('Enter your word!\n')
-    syn_and_ant(word)
+    sl1 = wordnet.synsets("good")
+    sl2 = wordnet.synsets("fantastic")
+    for x in sl1:
+        for y in sl2:
+            print(x, y, x.wup_similarity(y))
