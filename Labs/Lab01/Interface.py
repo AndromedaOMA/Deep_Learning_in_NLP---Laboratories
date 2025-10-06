@@ -2,6 +2,7 @@ import tkinter as tk
 import random
 from generate_words import generate_words
 from tkinter import messagebox
+from main import get_similarity
 
 # Am facut un random list insa cuvintele sunt prea complicate, cred ca putem hardcoda
 # WORDS = generate_words(on_event="Start")
@@ -19,6 +20,7 @@ class Interface(tk.Tk):
         self.game_over = False
         self.timer_delay = 5000
 
+        self.current_score = 0
         self.current_word = tk.StringVar(value=WORDS[0])
 
         self.prompt = tk.Label(
@@ -29,6 +31,15 @@ class Interface(tk.Tk):
             font=("Consolas", 14),
         )
         self.prompt.pack(pady=(40, 5))
+
+        self.score_label = tk.Label(
+            self,
+            text=self.current_score,
+            fg="#00ffff",
+            bg="#0a0014",
+            font=("Consolas", 30, "bold")
+        )
+        self.score_label.pack(pady=(0, 0))
 
         self.word_label = tk.Label(
             self,
@@ -96,6 +107,10 @@ class Interface(tk.Tk):
 
     def submit_word(self, event=None):
         user_word = self.entry.get().strip()
+
+        self.current_score += get_similarity(user_word, self.current_word.get())
+        self.score_label.config(text=self.current_score)
+
         if not user_word or self.game_over:
             return
 

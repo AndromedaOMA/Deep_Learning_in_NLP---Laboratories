@@ -19,9 +19,28 @@ def syn_and_ant(word: str):
     print('DEF', set(definitions))
 
 
-if __name__ == '__main__':
-    sl1 = wordnet.synsets("good")
-    sl2 = wordnet.synsets("fantastic")
+def get_similarity(word1, word2):
+    sl1 = wordnet.synsets(word1)
+    sl2 = wordnet.synsets(word2)
+    similarities = []
+    weights = []
+    # print('sl1 size = ', len(sl1), 'sl2 size = ', len(sl2)) # these are always different
     for x in sl1:
         for y in sl2:
-            print(x, y, x.wup_similarity(y))
+            # print(x, y, x.wup_similarity(y))
+            sim = x.wup_similarity(y)
+            if sim is not None:
+                x_weight = sum(lemma.count() for lemma in x.lemmas())
+                y_weight = sum(lemma.count() for lemma in y.lemmas())
+                weight = x_weight + y_weight
+                weights.append(weight)
+                similarities.append(sim * weight)
+    if not similarities:
+        return 0
+    if weights == 0:
+        weights = 1
+    return int(sum(similarities)/sum(weights) * 1000)
+
+
+if __name__ == '__main__':
+    print(get_similarity('Women', 'Car'))
