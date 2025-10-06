@@ -32,15 +32,6 @@ class Interface(tk.Tk):
         )
         self.prompt.pack(pady=(40, 5))
 
-        self.score_label = tk.Label(
-            self,
-            text=self.current_score,
-            fg="#00ffff",
-            bg="#0a0014",
-            font=("Consolas", 30, "bold")
-        )
-        self.score_label.pack(pady=(0, 0))
-
         self.word_label = tk.Label(
             self,
             textvariable=self.current_word,
@@ -86,6 +77,24 @@ class Interface(tk.Tk):
         scrollbar.config(command=self.word_list.yview)
 
         self.size = self.word_list.size()
+
+        self.score_prompt = tk.Label(
+            self,
+            text='Score:',
+            fg="#9a89ff",
+            bg="#0a0014",
+            font=("Consolas", 14),
+        )
+        self.score_prompt.pack(pady=(40, 5))
+
+        self.score_label = tk.Label(
+            self,
+            text=self.current_score,
+            fg="#00ffff",
+            bg="#0a0014",
+            font=("Consolas", 30, "bold")
+        )
+        self.score_label.pack(pady=(0, 0))
 
     def start_timer(self):
         if not self.running:
