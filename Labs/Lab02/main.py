@@ -51,9 +51,26 @@ def predict_with_bert(tokenizer, model, text, top_k=5):
         outputs = model(input_ids)
         predictions = outputs.logits[0, mask_idx, :].squeeze()
 
-    top_k_weights, top_k_indices = torch.topk(predictions, top_k, dim=-1)
-    predicted_tokens = [tokenizer.decode(idx).strip() for idx in top_k_indices]
-    return predicted_tokens
+    top_k_weights, top_k_indices = torch.topk(predictions, top_k*3, dim=-1)
+    predicted_tokens = []
+
+    for idx in top_k_indices:
+        token = tokenizer.decode(idx).strip()
+        if all(char in string.punctuation for char in token):
+            continue
+        if token == "":
+            continue
+        predicted_tokens.append(token.replace(" ", ""))
+        if len(predicted_tokens) == top_k:
+            break
+
+    if predicted_tokens:
+        modified_text = text.replace("[MASK]", predicted_tokens[0], 1)
+        modified_text += ' [MASK]'
+    else:
+        modified_text = text
+
+    return predicted_tokens, modified_text
 
 
 def predict_with_gpt(tokenizer, model, text, top_k=5):
@@ -69,7 +86,7 @@ def predict_with_gpt(tokenizer, model, text, top_k=5):
 
 def get_prediction_end_of_sentence(tokenizer, model, input_text, model_name, top_k):
     if model_name.lower() == "bert":
-        print(f"Input text: {input_text} <mask>")
+        print(f"Input text: {input_text}")
         return predict_with_bert(tokenizer, model, input_text, top_k)
     elif model_name.lower() == "gpt":
         print(f"Input text: {input_text}")
@@ -85,14 +102,17 @@ if __name__ == "__main__":
         no_words_to_be_predicted=5,
         select_model="bert",
         # select_model="gpt",
-        enter_input_text="why are [MASK] people so tired"
+        enter_input_text="Why are these people so [MASK]"
     )
 
     tokenizer, model = load_model(select_model)
-    results = get_prediction_end_of_sentence(
-        tokenizer, model, enter_input_text, select_model, no_words_to_be_predicted
-    )
+    for step in range(no_words_to_be_predicted):
+        results = get_prediction_end_of_sentence(
+            tokenizer, model, enter_input_text, select_model, no_words_to_be_predicted
+        )
+        enter_input_text = results[1]
+        print(f'Step {step}\nenter_input_text : {enter_input_text}')
 
-    print("\nTop predictions:")
-    for i, word in enumerate(results, 1):
-        print(f"{i}. {word}")
+        print("\nTop predictions:")
+        for i, word in enumerate(results, 1):
+            print(f"{i}. {word}")
