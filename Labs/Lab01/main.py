@@ -43,4 +43,6 @@ def get_similarity(word1, word2):
 
 
 if __name__ == '__main__':
-    print(get_similarity('Women', 'Car'))
+    print(get_similarity('vehicle', 'car'))
+    print(get_similarity('animal', 'cat'))
+    print(get_similarity('food', 'plane'))
