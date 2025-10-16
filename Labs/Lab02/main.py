@@ -1,25 +1,23 @@
 import torch
-from transformers import (
-    BertTokenizer, BertForMaskedLM,
-    AutoTokenizer, AutoModelForCausalLM, logging
-)
 import string
+from transformers import (BertTokenizer, BertForMaskedLM,
+                          XLNetTokenizer, XLNetModel, AutoModelWithLMHead,
+                          AutoTokenizer, logging)
 
 logging.set_verbosity_error()
 
-# Declare the variables properly
-no_words_to_be_predicted = None
-select_model = None
-enter_input_text = None
+no_words_to_be_predicted = globals()
+select_model = globals()
+enter_input_text = globals()
 
 
 def set_model_config(**kwargs):
     for key, value in kwargs.items():
-        print(f"{key} = {value}")
+        print("{0} = {1}".format(key, value))
 
-    no_words_to_be_predicted = kwargs.get("no_words_to_be_predicted", 5)
-    select_model = kwargs.get("select_model", "bert")
-    enter_input_text = kwargs.get("enter_input_text", "")
+    no_words_to_be_predicted = list(kwargs.values())[0]  # integer values
+    select_model = list(kwargs.values())[1]  # possible values = 'bert' or 'gpt' or 'xlnet'
+    enter_input_text = list(kwargs.values())[2]  # only string
 
     return no_words_to_be_predicted, select_model, enter_input_text
 
@@ -27,92 +25,79 @@ def set_model_config(**kwargs):
 def load_model(model_name):
     try:
         if model_name.lower() == "bert":
-            tokenizer = BertTokenizer.from_pretrained("bert-base-uncased", force_download=True)
-            model = BertForMaskedLM.from_pretrained("bert-base-uncased", force_download=True)
+            bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+            bert_model = BertForMaskedLM.from_pretrained('bert-base-uncased').eval()
+            return bert_tokenizer, bert_model
         elif model_name.lower() == "gpt":
-            tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            model = AutoModelForCausalLM.from_pretrained("gpt2").eval()
+            gpt_tokenizer = AutoTokenizer.from_pretrained("gpt2")
+            gpt_model = AutoModelWithLMHead.from_pretrained("gpt2").eval()
+            return gpt_tokenizer, gpt_model
         else:
-            raise ValueError("Unsupported model name (use 'bert' or 'gpt')")
-        return tokenizer, model
+            xlnet_tokenizer = AutoTokenizer.from_pretrained("xlnet-base-cased")
+            xlnet_model = AutoModelWithLMHead.from_pretrained("xlnet-base-cased").eval()
+            return xlnet_tokenizer, xlnet_model
     except Exception as e:
-        raise RuntimeError(f"[ERROR] Failed to load model: {e}")
+        print(f"Error loading model: {e}")
+        return None, None
 
 
-def predict_with_bert(tokenizer, model, text, top_k=5):
-    if "[MASK]" not in text and "<mask>" not in text:
-        text += " [MASK]"
-    text = text.replace("<mask>", "[MASK]")
+def get_all_predictions(input_text, model_name, top_clean):
+    tokenizer, model = load_model(model_name)
+    generated_text = input_text
 
-    input_ids = tokenizer.encode(text, return_tensors="pt")
-    mask_idx = torch.where(input_ids == tokenizer.mask_token_id)[1]
+    if tokenizer is None or model is None:
+        return {'error': 'Model failed to load'}
 
-    with torch.no_grad():
-        outputs = model(input_ids)
-        predictions = outputs.logits[0, mask_idx, :].squeeze()
-
-    top_k_weights, top_k_indices = torch.topk(predictions, top_k*3, dim=-1)
-    predicted_tokens = []
-
-    for idx in top_k_indices:
-        token = tokenizer.decode(idx).strip()
-        if all(char in string.punctuation for char in token):
-            continue
-        if token == "":
-            continue
-        predicted_tokens.append(token.replace(" ", ""))
-        if len(predicted_tokens) == top_k:
-            break
-
-    if predicted_tokens:
-        modified_text = text.replace("[MASK]", predicted_tokens[0], 1)
-        modified_text += ' [MASK]'
-    else:
-        modified_text = text
-
-    return predicted_tokens, modified_text
-
-
-def predict_with_gpt(tokenizer, model, text, top_k=5):
-    input_ids = tokenizer.encode(text, return_tensors="pt")
-    with torch.no_grad():
-        outputs = model(input_ids)
-        next_token_logits = outputs.logits[0, -1, :]
-
-    top_k_weights, top_k_indices = torch.topk(next_token_logits, top_k, dim=-1)
-    predicted_tokens = [tokenizer.decode(idx).strip() for idx in top_k_indices]
-    return predicted_tokens
-
-
-def get_prediction_end_of_sentence(tokenizer, model, input_text, model_name, top_k):
-    if model_name.lower() == "bert":
-        print(f"Input text: {input_text}")
-        return predict_with_bert(tokenizer, model, input_text, top_k)
-    elif model_name.lower() == "gpt":
-        print(f"Input text: {input_text}")
-        return predict_with_gpt(tokenizer, model, input_text, top_k)
-    else:
-        raise ValueError("Unsupported model name.")
-
-
-if __name__ == "__main__":
-    print("Next Word Prediction with PyTorch using BERT and GPT")
-
-    no_words_to_be_predicted, select_model, enter_input_text = set_model_config(
-        no_words_to_be_predicted=5,
-        select_model="bert",
-        # select_model="gpt",
-        enter_input_text="Why are these people so [MASK]"
-    )
-
-    tokenizer, model = load_model(select_model)
-    for step in range(no_words_to_be_predicted):
-        results = get_prediction_end_of_sentence(
-            tokenizer, model, enter_input_text, select_model, no_words_to_be_predicted
+    if model_name.lower() == "gpt":
+        input_ids = tokenizer.encode(generated_text, return_tensors='pt')
+        max_length = input_ids.shape[1] + top_clean
+        output = model.generate(
+            input_ids,
+            max_length=max_length,
+            num_return_sequences=1,
+            do_sample=True,
+            top_k=50,
+            top_p=0.95,
+            temperature=0.7,
+            pad_token_id=tokenizer.eos_token_id
         )
-        enter_input_text = results[1]
-        print(f'Step {step}\nenter_input_text : {enter_input_text}')
 
-        print("\nTop predictions:")
-        for i, word in enumerate(results, 1):
-            print(f"{i}. {word}")
+        generated_text = tokenizer.decode(output[0], skip_special_tokens=True)
+        return {'gpt': generated_text}
+    elif model_name.lower() == "bert":
+        pass
+    elif model_name.lower() == "xlnet":
+        pass
+    else:
+        return {'error': 'Unsupported model name'}
+
+
+def get_prediction_end_of_sentence(input_text, model_name):
+    try:
+        if model_name.lower() == "bert":
+            input_text += ' [mask]'
+            print(input_text)
+            res = get_all_predictions(input_text, model_name, top_clean=int(no_words_to_be_predicted))
+            return res
+        elif model_name.lower() == "gpt":
+            print('Input: ', input_text)
+            res = get_all_predictions(input_text, model_name, top_clean=int(no_words_to_be_predicted))
+            return res
+
+    except Exception as error:
+        pass
+
+
+try:
+    print("Next Word Prediction with Pytorch using BERT, GPT, and XLNet")
+    no_words_to_be_predicted, select_model, enter_input_text = set_model_config(no_words_to_be_predicted=10,
+                                                                                select_model="gpt",
+                                                                                enter_input_text="why are the neural networks so ")
+
+    res = get_prediction_end_of_sentence(enter_input_text, select_model)
+    model_key = select_model.lower()
+    print(f"Model: {model_key.upper()}")
+    print(f"Generated Text: {res[model_key]}")
+
+except Exception as e:
+    print('Some problem occured')
