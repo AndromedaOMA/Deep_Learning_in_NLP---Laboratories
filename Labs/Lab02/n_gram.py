@@ -115,6 +115,6 @@ def prob_of_sentence(sentence_str: str, n: int, P) -> float:
     return sentence_prob(sent_norm, n, P)
 
 
-s_noua = "cinci minute"
+s_noua = "ma gandesc la imperiul roman"
 p = prob_of_sentence(s_noua, n, P)
 print(f"P('{s_noua}') = {p:.12e}")
