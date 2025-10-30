@@ -1,4 +1,4 @@
-from vectorization import BoW
+from vectorization import *
 from lda import LDA, visualize
 from wiki_methods import *
 
@@ -13,6 +13,7 @@ if __name__ == '__main__':
 
     # 1. BoW & TF-IDF
     BoW(titles)
+    # sklearn_BoW(titles)
 
     # 2. Latent Semantic Analysis with SVD
 

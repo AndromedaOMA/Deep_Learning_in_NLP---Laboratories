@@ -3,6 +3,23 @@ from wiki_methods import *
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+
+
+def sklearn_BoW(titles):
+    corpus = []
+    for title in titles:
+        text = read_content(title)
+        corpus.append(text)
+    # Create a CountVectorizer Object
+    vectorizer = CountVectorizer()
+    # Fit and transform the corpus
+    X = vectorizer.fit_transform(corpus)
+    # Print the generated vocabulary
+    print("Vocabulary:", vectorizer.get_feature_names_out())
+    # Print the Bag-of-Words matrix
+    print("BoW Representation:")
+    print(X.toarray())
 
 
 def vocab_generator(titles, no_of_tokens=20):
