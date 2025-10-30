@@ -30,10 +30,9 @@ def remove_whitespace(text):
     return " ".join(text.split())
 
 
-def remove_stopwords(text):
+def remove_stopwords(list_of_tokens):
     stop_words = set(stopwords.words("english"))
-    word_tokens = word_tokenize(text)
-    filtered_text = [word for word in word_tokens if word.lower()
+    filtered_text = [word for word in list_of_tokens if word.lower()
                      not in stop_words]
     return filtered_text
 
@@ -41,9 +40,8 @@ def remove_stopwords(text):
 stemmer = PorterStemmer()
 
 
-def stem_words(text):
-    word_tokens = word_tokenize(text)
-    stems = [stemmer.stem(word) for word in word_tokens]
+def stem_words(list_of_tokens):
+    stems = [stemmer.stem(word) for word in list_of_tokens]
     return stems
 
 
