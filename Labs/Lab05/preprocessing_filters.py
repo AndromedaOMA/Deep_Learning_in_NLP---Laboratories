@@ -7,6 +7,11 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.porter import PorterStemmer
 
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('punkt_tab')
+# nltk.download('wordnet')
+
 
 def text_lowercase(text):
     return text.lower()
@@ -25,11 +30,6 @@ def remove_whitespace(text):
     return " ".join(text.split())
 
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('punkt_tab')
-
-
 def remove_stopwords(text):
     stop_words = set(stopwords.words("english"))
     word_tokens = word_tokenize(text)
@@ -46,8 +46,6 @@ def stem_words(text):
     stems = [stemmer.stem(word) for word in word_tokens]
     return stems
 
-
-nltk.download('wordnet')
 
 lemmatizer = WordNetLemmatizer()
 
