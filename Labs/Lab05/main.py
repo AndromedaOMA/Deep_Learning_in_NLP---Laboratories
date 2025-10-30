@@ -1,31 +1,6 @@
-import wikipediaapi
+from vectorization import BoW
 from lda import LDA, visualize
-from preprocessing_filters import *
-
-wiki_wiki = wikipediaapi.Wikipedia(user_agent='Lab05', language='en')
-
-
-def read_content(page: str) -> str:
-    p_wiki = wiki_wiki.page(page)
-    return p_wiki.text
-
-
-def get_category_articles(categorymembers, size=15, level=0, max_level=1):
-    articles = []
-
-    for c in categorymembers.values():
-        if c.ns == wikipediaapi.Namespace.MAIN:
-            articles.append(c.title)
-            if len(articles) >= size:
-                return articles
-
-        elif c.ns == wikipediaapi.Namespace.CATEGORY and level < max_level:
-            sub_articles = get_category_articles(c.categorymembers, size - len(articles), level + 1, max_level)
-            articles.extend(sub_articles)
-            if len(articles) >= size:
-                return articles
-
-    return articles
+from wiki_methods import *
 
 
 if __name__ == '__main__':
@@ -36,37 +11,8 @@ if __name__ == '__main__':
         cat = get_category_articles(current_category.categorymembers, 6)
         titles.extend(cat[1:])
 
-    # for title in titles:
-    #     print("==================================")
-    #     print(read_content(title))
-
-    t = titles[0]
-    text = read_content(t)
-    filtered_text = text[:-1]
-
-    # 1. Preprocessing the text
-    filtered_text = text_lowercase(filtered_text)
-    filtered_text = remove_numbers(filtered_text)
-    filtered_text = remove_punctuation(filtered_text)
-    filtered_text = remove_whitespace(filtered_text)
-
-    # Compare original and filtered text:
-    # with open("./data/original_text", "a") as f:
-    #     f.write(text)
-    # with open("./data/filtered_text", "a") as f:
-    #     f.write(filtered_text)
-    #
-    # with open(r"./data/original_text", 'r') as f1, open(r"./data/filtered_text", 'r') as f2:
-    #     line_num = 0
-    #     for line1, line2 in zip(f1, f2):
-    #         line_num += 1
-    #         if line1 != line2:
-    #             print(f"Line {line_num}:")
-    #             print(f"\tFile 1: {line1.strip()}")
-    #             print(f"\tFile 2: {line2.strip()}")
-    list_of_words = remove_stopwords(filtered_text)
-    word2count = word_freq(list_of_words)
-    print(word2count)
+    # 1. BoW & TF-IDF
+    BoW(titles)
 
     # 2. Latent Semantic Analysis with SVD
 
