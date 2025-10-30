@@ -1,5 +1,5 @@
 import wikipediaapi
-from lda import LDA
+from lda import LDA, visualize
 from preprocessing_filters import *
 
 wiki_wiki = wikipediaapi.Wikipedia(user_agent='Lab05', language='en')
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     text = read_content(t)
     filtered_text = text[:-1]
 
-    # preprocessing the text
+    # 1. Preprocessing the text
     filtered_text = text_lowercase(filtered_text)
     filtered_text = remove_numbers(filtered_text)
     filtered_text = remove_punctuation(filtered_text)
@@ -65,4 +65,11 @@ if __name__ == '__main__':
     #             print(f"\tFile 1: {line1.strip()}")
     #             print(f"\tFile 2: {line2.strip()}")
 
-    LDA(filtered_text, num_topics=3)
+
+    # 2. Latent Semantic Analysis with SVD
+
+    # 3. Non-negative matrix factorization
+
+    # 4. LDA
+    lda_model, corpus, id2word = LDA(filtered_text, num_topics=3)
+    visualize(lda_model, corpus, id2word, num_topics=3)
