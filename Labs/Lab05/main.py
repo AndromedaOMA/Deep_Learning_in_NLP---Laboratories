@@ -1,4 +1,5 @@
 import wikipediaapi
+from preprocessing_filters import *
 
 wiki_wiki = wikipediaapi.Wikipedia(user_agent='MyProjectName (merlin@example.com)', language='en')
 
@@ -33,6 +34,18 @@ for c in categories:
     cat = get_category_articles(current_category.categorymembers, 6)
     titles.extend(cat[1:])
 
-for title in titles:
-    print("==================================")
-    print(read_content(title))
+# for title in titles:
+#     print("==================================")
+#     print(read_content(title))
+
+t = titles[0]
+text = read_content(t)
+t = text[:-1]
+
+t = text_lowercase(t)
+t = remove_numbers(t)
+t = remove_punctuation(t)
+t = remove_whitespace(t)
+t = remove_stopwords(t)
+t = stem_words(t)
+
