@@ -64,12 +64,14 @@ if __name__ == '__main__':
     #             print(f"Line {line_num}:")
     #             print(f"\tFile 1: {line1.strip()}")
     #             print(f"\tFile 2: {line2.strip()}")
-
+    list_of_words = remove_stopwords(filtered_text)
+    word2count = word_freq(list_of_words)
+    print(word2count)
 
     # 2. Latent Semantic Analysis with SVD
 
     # 3. Non-negative matrix factorization
 
-    # 4. LDA
-    lda_model, corpus, id2word = LDA(filtered_text, num_topics=3)
-    visualize(lda_model, corpus, id2word, num_topics=3)
+    # 4. LDA (DONE)
+    # lda_model, corpus, id2word = LDA(filtered_text, num_topics=3)
+    # visualize(lda_model, corpus, id2word, num_topics=3)

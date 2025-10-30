@@ -54,3 +54,14 @@ def lemma_words(text):
     word_tokens = word_tokenize(text)
     lemmas = [lemmatizer.lemmatize(word) for word in word_tokens]
     return lemmas
+
+
+def word_freq(list_of_word):
+    word2count = {}
+    for word in list_of_word:
+        if word not in word2count:
+            word2count[word] = 1
+        else:
+            word2count[word] += 1
+
+    return word2count
