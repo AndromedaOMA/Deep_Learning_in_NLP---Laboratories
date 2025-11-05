@@ -1,13 +1,8 @@
 import os
-
 import gensim.corpora as corpora
-from pprint import pprint
 import gensim
-
-from Labs.Lab05.vectorization import preprocess_text
-from Labs.Lab05.wiki_methods import read_content
-from preprocessing_filters import remove_stopwords
-
+from vectorization import preprocess_text
+from wiki_methods import read_content
 import pyLDAvis.gensim
 import pickle
 import pyLDAvis

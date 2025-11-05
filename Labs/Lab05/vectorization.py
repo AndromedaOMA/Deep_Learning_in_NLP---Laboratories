@@ -1,3 +1,5 @@
+from gensim import corpora
+
 from preprocessing_filters import *
 from wiki_methods import *
 import numpy as np
@@ -36,8 +38,7 @@ def sklearn_BoW(titles, preprocessing=True):
     # Print the generated vocabulary
     print("Vocabulary:", len(vectorizer.get_feature_names_out()))
     # Print the Bag-of-Words matrix
-    print("BoW Representation:")
-    print(X.toarray())
+    print(f"BoW Representation: {X.toarray()}")
 
 
 def sklearn_tf_idf(titles, preprocessing=True):
@@ -54,8 +55,7 @@ def sklearn_tf_idf(titles, preprocessing=True):
     X = vectorizer.fit_transform(corpus)
     # print("Vocabulary:", vectorizer.get_feature_names_out())
     # Print the TF-IDF matrix
-    # print("TFIDF Representation:")
-    # print(X.toarray())
+    # print(f"TFIDF Representation: {X.toarray()}")
     return X, vectorizer
 
 
@@ -87,7 +87,8 @@ def vocab_generator(titles, no_of_tokens=20):
 
 def BoW(titles, no_of_tokens=20):
     vocab = vocab_generator(titles, no_of_tokens)
-    bow = []
+    manual_bow = []
+    texts = []
     for title in titles:
         current_bow = np.zeros(len(vocab))
         text = read_content(title)
@@ -98,13 +99,19 @@ def BoW(titles, no_of_tokens=20):
         filtered_text = remove_whitespace(filtered_text)
         list_of_lemma_words = lemma_words(filtered_text)
         tokens = remove_stopwords(list_of_lemma_words)
+        texts.append(tokens)
 
         for i, word in enumerate(vocab):
             if word in tokens:
                 current_bow[i] = 1
-        bow.append(current_bow)
+        manual_bow.append(current_bow)
 
-    bow = np.asarray(bow, dtype=int)
+    # BoW format
+    dictionary = corpora.Dictionary(texts)
+    bow_corpus = [dictionary.doc2bow(text) for text in texts]
+
+    # visualization
+    bow = np.asarray(manual_bow, dtype=int)
 
     plt.figure(figsize=(10, 6))
     sns.heatmap(
@@ -122,4 +129,6 @@ def BoW(titles, no_of_tokens=20):
     plt.tight_layout()
     plt.show()
 
-    return bow
+    # manual_bow, vocab (manual implementation)
+    # bow_corpus, dictionary (BoW format)
+    return manual_bow, vocab, bow_corpus, dictionary, texts
