@@ -14,10 +14,11 @@ def preprocess_text(text):
     t = remove_whitespace(t)
     toks = lemma_words(t)
     toks = remove_stopwords(toks)
+    toks = [w for w in toks if w.isalpha() and len(w) > 3]
     return " ".join(toks)
 
 
-def sklearn_BoW(titles, preprocessing=False):
+def sklearn_BoW(titles, preprocessing=True):
     corpus = []
     for title in titles:
         text = read_content(title)
@@ -39,7 +40,7 @@ def sklearn_BoW(titles, preprocessing=False):
     print(X.toarray())
 
 
-def sklearn_tf_idf(titles, preprocessing=False):
+def sklearn_tf_idf(titles, preprocessing=True):
     corpus = []
     for title in titles:
         text = read_content(title)
@@ -51,10 +52,11 @@ def sklearn_tf_idf(titles, preprocessing=False):
         tokenizer=str.split if preprocessing else None
     )
     X = vectorizer.fit_transform(corpus)
-    print("Vocabulary:", vectorizer.get_feature_names_out())
+    # print("Vocabulary:", vectorizer.get_feature_names_out())
     # Print the TF-IDF matrix
-    print("TFIDF Representation:")
-    print(X.toarray())
+    # print("TFIDF Representation:")
+    # print(X.toarray())
+    return X, vectorizer
 
 
 def vocab_generator(titles, no_of_tokens=20):
