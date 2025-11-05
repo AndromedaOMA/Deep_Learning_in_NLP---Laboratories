@@ -1,7 +1,7 @@
 from vectorization import *
 from lda import LDA, visualize
 from wiki_methods import *
-
+from nmf import run_nmf_from_matrix
 
 if __name__ == '__main__':
     categories = ['Science', 'Music', 'Cooking']
@@ -14,7 +14,8 @@ if __name__ == '__main__':
     # 1. BoW & TF-IDF
     # BoW(titles)
     # sklearn_BoW(titles)
-    # sklearn_tf_idf(titles)
+    X_tfidf, vec = sklearn_tf_idf(titles)
+    W, H, model = run_nmf_from_matrix(X_tfidf, vec)
     # 2. Latent Semantic Analysis with SVD
 
     # 3. Non-negative matrix factorization
