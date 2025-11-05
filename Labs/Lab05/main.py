@@ -1,3 +1,4 @@
+from Labs.Lab05.lsa_with_svd import create_gensim_lsa_model
 from vectorization import *
 from lda import LDA, visualize
 from wiki_methods import *
@@ -11,12 +12,13 @@ if __name__ == '__main__':
         cat = get_category_articles(current_category.categorymembers, 6)
         titles.extend(cat[1:])
 
-    # 1. BoW & TF-IDF
-    # BoW(titles)
+    # 1. BoW & TF-IDF (DONE)
+    BoW(titles)
     # sklearn_BoW(titles)
-    # sklearn_tf_idf(titles)
-    # 2. Latent Semantic Analysis with SVD
+    sklearn_tf_idf(titles)
 
+    # 2. Latent Semantic Analysis with SVD
+    # lsa_model = create_gensim_lsa_model(filtered_text, 10, 20)
     # 3. Non-negative matrix factorization
 
     # 4. LDA (DONE)
