@@ -3,27 +3,62 @@ from wiki_methods import *
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from collections import Counter
 
 
-def sklearn_BoW(titles):
+def preprocess_text(text):
+    t = text_lowercase(text)
+    t = remove_numbers(t)
+    t = remove_punctuation(t)
+    t = remove_whitespace(t)
+    toks = lemma_words(t)
+    toks = remove_stopwords(toks)
+    return " ".join(toks)
+
+
+def sklearn_BoW(titles, preprocessing=False):
     corpus = []
     for title in titles:
         text = read_content(title)
+        if preprocessing:
+            text = preprocess_text(text)
         corpus.append(text)
     # Create a CountVectorizer Object
-    vectorizer = CountVectorizer()
+    vectorizer = CountVectorizer(
+        token_pattern=None if preprocessing else r"(?u)\b\w\w+\b",
+        tokenizer=str.split if preprocessing else None,
+        binary=True
+    )
     # Fit and transform the corpus
     X = vectorizer.fit_transform(corpus)
     # Print the generated vocabulary
-    print("Vocabulary:", vectorizer.get_feature_names_out())
+    print("Vocabulary:", len(vectorizer.get_feature_names_out()))
     # Print the Bag-of-Words matrix
     print("BoW Representation:")
     print(X.toarray())
 
 
+def sklearn_tf_idf(titles, preprocessing=False):
+    corpus = []
+    for title in titles:
+        text = read_content(title)
+        if preprocessing:
+            text = preprocess_text(text)
+        corpus.append(text)
+    vectorizer = TfidfVectorizer(
+        token_pattern=None if preprocessing else r"(?u)\b\w\w+\b",
+        tokenizer=str.split if preprocessing else None
+    )
+    X = vectorizer.fit_transform(corpus)
+    print("Vocabulary:", vectorizer.get_feature_names_out())
+    # Print the TF-IDF matrix
+    print("TFIDF Representation:")
+    print(X.toarray())
+
+
 def vocab_generator(titles, no_of_tokens=20):
-    word2count = {}
+    word2count = Counter()
     for title in titles:
         text = read_content(title)
         filtered_text = text[:-1]
@@ -39,7 +74,7 @@ def vocab_generator(titles, no_of_tokens=20):
         # list_of_stemmed_words = stem_words(list_of_lemma_words)
         # list_of_tokens = remove_stopwords(list_of_stemmed_words)
         list_of_tokens = remove_stopwords(list_of_lemma_words)
-        fr = word_freq(list_of_tokens)
+        fr = Counter(list_of_tokens)
         word2count.update(fr)
 
     vocab = [word for word, _ in sorted(word2count.items(), key=lambda x: x[1], reverse=True)[:no_of_tokens]]

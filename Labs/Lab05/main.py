@@ -12,9 +12,9 @@ if __name__ == '__main__':
         titles.extend(cat[1:])
 
     # 1. BoW & TF-IDF
-    BoW(titles)
+    # BoW(titles)
     # sklearn_BoW(titles)
-
+    # sklearn_tf_idf(titles)
     # 2. Latent Semantic Analysis with SVD
 
     # 3. Non-negative matrix factorization
