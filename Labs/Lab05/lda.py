@@ -3,6 +3,9 @@ import os
 import gensim.corpora as corpora
 from pprint import pprint
 import gensim
+
+from Labs.Lab05.vectorization import preprocess_text
+from Labs.Lab05.wiki_methods import read_content
 from preprocessing_filters import remove_stopwords
 
 import pyLDAvis.gensim
@@ -10,17 +13,24 @@ import pickle
 import pyLDAvis
 
 
-def LDA(filtered_text, num_topics):
-    # removing stop words
-    tokens_wout_stopwords = remove_stopwords(filtered_text)
-    # Create Dictionary
-    id2word = corpora.Dictionary([tokens_wout_stopwords])
-    # Create Corpus
-    texts = [tokens_wout_stopwords]
-    # Term Document Frequency
-    corpus = [id2word.doc2bow(text) for text in texts]
-    # View
-    print(f'Corpus sample: {corpus[:1][0][:30]}')
+def LDA(titles, preprocessing=True, num_topics=3):
+    text_corpus = []
+    for title in titles:
+        text = read_content(title)
+        if preprocessing:
+            tokens = preprocess_text(text)
+            if isinstance(tokens, str):
+                tokens = tokens.split()
+        text_corpus.append(tokens)
+
+    if not text_corpus:
+        raise ValueError("No valid texts to process — check input titles.")
+
+    print(f"\n[INFO] Collected {len(text_corpus)} documents for LDA.\n")
+
+    # Create dictionary and corpus
+    id2word = corpora.Dictionary(text_corpus)
+    corpus = [id2word.doc2bow(text) for text in text_corpus]
 
     # Build LDA model
     lda_model = gensim.models.LdaMulticore(

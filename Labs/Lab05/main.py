@@ -14,12 +14,13 @@ if __name__ == '__main__':
     # 1. BoW & TF-IDF
     # BoW(titles)
     # sklearn_BoW(titles)
-    X_tfidf, vec = sklearn_tf_idf(titles)
-    W, H, model = run_nmf_from_matrix(X_tfidf, vec)
+    # X_tfidf, vec = sklearn_tf_idf(titles)
+    # W, H, model = run_nmf_from_matrix(X_tfidf, vec)
+
     # 2. Latent Semantic Analysis with SVD
 
     # 3. Non-negative matrix factorization
 
     # 4. LDA (DONE)
-    # lda_model, corpus, id2word = LDA(filtered_text, num_topics=3)
-    # visualize(lda_model, corpus, id2word, num_topics=3)
+    lda_model, corpus, id2word = LDA(titles)
+    visualize(lda_model, corpus, id2word, num_topics=3)
