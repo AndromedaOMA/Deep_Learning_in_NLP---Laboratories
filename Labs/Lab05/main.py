@@ -13,9 +13,9 @@ if __name__ == '__main__':
         titles.extend(cat[1:])
 
     # 1. BoW & TF-IDF (DONE)
-    # manual_bow, vocab, bow_corpus, dictionary, texts = BoW(titles)
-    # sklearn_BoW(titles)
-    # X_tfidf, vec = sklearn_tf_idf(titles)
+    manual_bow, vocab, bow_corpus, dictionary, texts = BoW(titles)
+    sklearn_BoW(titles)
+    X_tfidf, vec = sklearn_tf_idf(titles)
 
     # 2. Latent Semantic Analysis with SVD (DONE)
     dictionary, corpus_bow, corpus_tfidf = build_gensim_corpus(titles, preprocessing=True)
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     vis = visualize_lsa(lsa_model, corpus_bow, dictionary)
 
     # Save visualization
-    pyLDAvis.save_html(vis, 'lsa_visualization.html')
+    # pyLDAvis.save_html(vis, 'lsa_visualization.html')
     # 3. Non-negative matrix factorization
     # W, H, model = run_nmf_from_matrix(X_tfidf, vec)
     # dictionary, corpus_bow, corpus_tfidf = build_gensim_corpus(titles, preprocessing=True)

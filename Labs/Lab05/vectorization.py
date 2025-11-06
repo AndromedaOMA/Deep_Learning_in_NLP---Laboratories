@@ -1,5 +1,4 @@
 from gensim import corpora
-
 from preprocessing_filters import *
 from wiki_methods import *
 import numpy as np
@@ -101,9 +100,9 @@ def BoW(titles, no_of_tokens=20):
         tokens = remove_stopwords(list_of_lemma_words)
         texts.append(tokens)
 
-        for i, word in enumerate(vocab):
-            if word in tokens:
-                current_bow[i] = 1
+        for token in tokens:
+            if token in vocab:
+                current_bow[vocab.index(token)] += 1
         manual_bow.append(current_bow)
 
     # BoW format
